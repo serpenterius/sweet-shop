@@ -1,4 +1,9 @@
 
+
+
+
+
+
 const menu = document.querySelector('.menu-items'),
     cart = document.querySelector('.cart-items')
 
@@ -56,11 +61,11 @@ function render(data) {
 
 
     //Динамический рендер элементов корзины
-    cartData.forEach(item => {
+    cartData.forEach((item, index) => {
         const {name, price} = item;
 
         cart.insertAdjacentHTML('beforeend', `
-            <div class="cart-item">
+            <div class="cart-item" data-id=${index}>
                 <p>${name}</p>
 
                 <div class="cart-item-info">
@@ -81,6 +86,8 @@ function render(data) {
     document.querySelectorAll('.cart-remove').forEach(item => {
         item.addEventListener('click', e => {
             e.currentTarget.closest('.cart-item').remove();
+            cartData.splice(e.currentTarget.closest('.cart-item').dataset.id, 1);
+            console.log(cartData);
         })
     })
 
@@ -127,6 +134,8 @@ function render(data) {
         })
     })
 
+
+    //Прибавление или убавление количества единиц товара, при занесении в корзину
     document.querySelectorAll('.decrement').forEach(item => {
         item.addEventListener('click', e => {
             e.stopPropagation();
