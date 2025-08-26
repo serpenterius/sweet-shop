@@ -1,8 +1,11 @@
 
 //Сделать правильную передачу количества блюд в коризну (СДЕЛАНО)
-//Сделать правильную логику, при добавлени одного и того же блюда (СДЕЛАНО)
+//Сделать правильную логику, при добавлении одного и того же блюда (СДЕЛАНО)
 //Сделать правильное отображение цены в total (СДЕЛАНО)
 //Сделать правильное отображение количества позиций в корзине (СДЕЛАНО)
+//Сделать контекстное меню(СДЕЛАНО)
+//Сделать наполнение контекстного меню
+//
 //Доделать стили
 //Сделать корректный адаптив
 
@@ -89,6 +92,33 @@ function render(data) {
         `)
     })
 
+    //Динамический рендер контекстного меню
+
+    //Вызывается массив позиций, которые пользователь добавил в корзину, forEach проходит по каждой позиции, вставляя её в DOM, заполняя все данные в верстке
+    document.querySelector('.order-confirmed-positions').innerHTML = ''
+    cartData.forEach(item => {
+        let {img, name, quantity, price} = item;
+
+        // console.log(item);
+
+        document.querySelector('.order-confirmed-positions').insertAdjacentHTML('beforeend', `
+            <div class="order-confirmed-position">
+                <img src=${img} alt="">
+
+                <div class="order-position-info">
+                    <p class="order-position-title">${name}</p>
+                    <p class="order-position-quantity">${quantity}</p>
+                    <p class="order-positon-price">${price}</p>
+                </div>
+
+                <p class="order-position-total">$${Number(price.slice(1)) * Number(quantity)}</p>
+            </div>    
+        `)
+    })
+
+
+
+
     //Подсчёт суммы позиций в корзине и её вывод пользователю
     totalPrice = 0;
     cartData.forEach(item => {
@@ -103,6 +133,12 @@ function render(data) {
             e.currentTarget.closest('.cart-item').remove();
             cartData.splice(e.currentTarget.closest('.cart-item').dataset.id, 1);
             document.querySelector('.cart-positions').textContent = `Your cart(${cartData.length})`;
+
+            document.querySelectorAll('.order-confirmed-position').forEach(item => {
+                // console.log(item.querySelector('.order-position-title').textContent);
+
+                console.log(e.target)
+            })
             
             init();
         })
@@ -113,10 +149,12 @@ function render(data) {
         item.addEventListener('click', e => {
             let hasTwin = false;
             let object = {
-                name:e.currentTarget.closest('.menu-item').children[1].children[1].textContent,
+                name: e.currentTarget.closest('.menu-item').children[1].children[1].textContent,
                 price: e.currentTarget.closest('.menu-item').children[1].children[2].textContent,
-                quantity: e.currentTarget.closest('.menu-item').querySelector('.quantity-btn').textContent
+                quantity: e.currentTarget.closest('.menu-item').querySelector('.quantity-btn').textContent,
+                img: e.currentTarget.closest('.menu-item').querySelector('img').src
             }
+
 
             cartData.forEach(item => {
                 if(item.name === object.name) {
@@ -175,6 +213,21 @@ function render(data) {
             e.stopPropagation();
             e.currentTarget.parentElement.children[1].textContent = Number(e.currentTarget.parentElement.children[1].textContent) + 1
         })
+    })
+
+
+    //Вызов контекстного меню
+    document.querySelector('.confirm').addEventListener('click', e => {
+        document.querySelector('.layout-window').classList.remove('hidden-layout');
+        document.querySelector('.layout-window').classList.add('active-layout');
+    })
+
+    //Выход из контекстного меню
+    document.querySelector('.layout-window').addEventListener('click', e => {
+        if(e.target.classList == "layout-window active-layout") {
+            e.target.classList.remove('active-layout');
+            e.target.classList.add('hidden-layout');
+        }
     })
 }
 
