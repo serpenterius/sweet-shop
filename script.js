@@ -246,10 +246,20 @@ let getData = new Promise((resolve, reject) => {
 })
 
 getData.then(data => {
-    console.log(data);
+    renderPositions(data);
+
+    const renderedPositions = document.querySelectorAll('.menu-position');
+    addToCart(renderedPositions);
 })
 
-function createPosition(category, img, name, price) {
+function renderPositions (data) {
+    data.forEach(item => {
+        let {category, image, name, price} = item;
+        createPosition(category, image, name, price,);
+    })
+}
+
+function createPosition(category, image, name, price) {
     let positionContainer = document.createElement('div');
     positionContainer.className = 'menu-position';
 
@@ -260,9 +270,10 @@ function createPosition(category, img, name, price) {
 
     let labelImage = document.createElement('img');
     labelImage.className = 'label-img'
+    labelImage.src = image.desktop
 
     let labelButton = document.createElement('button');
-    labelButton.className = 'label-button';
+    labelButton.className = 'add-to-cart';
 
     let defaultButton = document.createElement('div');
     defaultButton.className = 'default-btn';
@@ -297,12 +308,15 @@ function createPosition(category, img, name, price) {
 
     let positionCategory = document.createElement('p');
     positionCategory.className = 'position-title';
+    positionCategory.textContent = category;
 
     let positionName = document.createElement('p');
     positionName.className = 'position-name';
+    positionName.textContent = name;
 
     let positionPrice = document.createElement('p');
     positionPrice.className = 'position-price';
+    positionPrice.textContent = `$${price}`
 
     //-------------------------------------------------------------------------
     defaultButton.append(defaultButtonImg);
@@ -326,6 +340,33 @@ function createPosition(category, img, name, price) {
     positionContainer.append(menuPosition);
     positionContainer.append(positionDescription);
 
+    menuItems.append(positionContainer);
 };
 
 
+function addToCart(positions) {
+    positions.forEach(item => {
+        item.querySelector('.position-label').addEventListener('click', e => {
+            let addToCartBtn = e.currentTarget.querySelector('.add-to-cart'),
+                defaultBtn = addToCartBtn.querySelector('.default-btn'),
+                hoverBtn = addToCartBtn.querySelector('.hover-btn');
+
+            //Удаляю рамку со всех позиций
+            positions.forEach(item => {
+                item.querySelector('.label-img').classList.remove('label-active');
+
+                item.querySelector('.default-btn').classList.remove('hidden');
+                
+                item.querySelector('.hover-btn').classList.add('hidden');
+                item.querySelector('.hover-btn').classList.remove('active');
+            })
+            //Навешиваю рамку на позицию, которую выбрал пользователь
+            e.currentTarget.querySelector('.label-img').classList.add('label-active');
+
+            //Изменяю контент в кнопке активной позиции
+            defaultBtn.classList.add('hidden')
+            hoverBtn.classList.remove('hidden');
+            hoverBtn.classList.add('active');
+        })
+    })
+}
