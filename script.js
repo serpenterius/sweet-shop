@@ -112,7 +112,7 @@
 //                 </div>
 
 //                 <p class="order-position-total">$${Number(price.slice(1)) * Number(quantity)}</p>
-//             </div>    
+//             </div
 //         `)
 //     })
 
@@ -235,7 +235,9 @@
 // init();
 
 
-let menuItems = document.querySelector('.menu-items')
+let menuItems = document.querySelector('.menu-items'),
+    cart = document.querySelector('.cart-items'),
+    cartData = [];
 
 
 let getData = new Promise((resolve, reject) => {
@@ -248,8 +250,9 @@ let getData = new Promise((resolve, reject) => {
 getData.then(data => {
     renderPositions(data);
 
-    const renderedPositions = document.querySelectorAll('.menu-position');
-    addToCart(renderedPositions);
+    // const renderedPositions = document.querySelectorAll('.menu-position');
+    // choosePosition(renderedPositions);
+    addToCart();
 })
 
 function renderPositions (data) {
@@ -344,29 +347,141 @@ function createPosition(category, image, name, price) {
 };
 
 
-function addToCart(positions) {
-    positions.forEach(item => {
-        item.querySelector('.position-label').addEventListener('click', e => {
-            let addToCartBtn = e.currentTarget.querySelector('.add-to-cart'),
-                defaultBtn = addToCartBtn.querySelector('.default-btn'),
-                hoverBtn = addToCartBtn.querySelector('.hover-btn');
+// function choosePosition(positions) {
+//     positions.forEach(item => {
+//         item.querySelector('.position-label').addEventListener('click', e => {
+//             let addToCartBtn = e.currentTarget.querySelector('.add-to-cart'),
+//                 defaultBtn = addToCartBtn.querySelector('.default-btn'),
+//                 hoverBtn = addToCartBtn.querySelector('.hover-btn');
 
-            //Удаляю рамку со всех позиций
-            positions.forEach(item => {
-                item.querySelector('.label-img').classList.remove('label-active');
+//             //Удаляю рамку со всех позиций
+//             positions.forEach(item => {
+//                 item.querySelector('.label-img').classList.remove('label-active');
 
-                item.querySelector('.default-btn').classList.remove('hidden');
+//                 item.querySelector('.default-btn').classList.remove('hidden');
                 
-                item.querySelector('.hover-btn').classList.add('hidden');
-                item.querySelector('.hover-btn').classList.remove('active');
-            })
-            //Навешиваю рамку на позицию, которую выбрал пользователь
-            e.currentTarget.querySelector('.label-img').classList.add('label-active');
+//                 item.querySelector('.hover-btn').classList.add('hidden');
+//                 item.querySelector('.hover-btn').classList.remove('active');
+//             })
+//             //Навешиваю рамку на позицию, которую выбрал пользователь
+//             e.currentTarget.querySelector('.label-img').classList.add('label-active');
 
-            //Изменяю контент в кнопке активной позиции
-            defaultBtn.classList.add('hidden')
-            hoverBtn.classList.remove('hidden');
-            hoverBtn.classList.add('active');
+//             //Изменяю контент в кнопке активной позиции
+//             defaultBtn.classList.add('hidden')
+//             hoverBtn.classList.remove('hidden');
+//             hoverBtn.classList.add('active');
+//         })
+//     })
+
+//     addToCart();
+// };
+
+function addToCart() {
+    let addToCartBtn = document.querySelectorAll('.add-to-cart');
+    let quantity = 1;
+
+
+    addToCartBtn.forEach(item => {
+        item.addEventListener('mouseenter', e => {
+            e.target.querySelector('.default-btn').classList.add('hidden')
+            e.target.querySelector('.hover-btn').classList.remove('hidden');
         })
     })
+
+        addToCartBtn.forEach(item => {
+        item.addEventListener('mouseleave', e => {
+            e.target.querySelector('.default-btn').classList.remove('hidden')
+            e.target.querySelector('.hover-btn').classList.add('hidden');
+            
+            
+            quantity = 1;
+            e.target.querySelector('.quantity-btn').textContent = quantity;
+        })
+    })
+
+
+    menuItems.addEventListener('click', e => {
+        //Выбор количества позиций через делегирование событий
+        if(e.target.classList.contains('decrement') && quantity > 1) {
+            quantity--;
+            e.target.parentElement.querySelector('.quantity-btn').textContent = quantity;
+        }
+
+        if(e.target.classList.contains('increment')) {
+            quantity++;
+            e.target.parentElement.querySelector('.quantity-btn').textContent = quantity;
+        }
+
+        //Отправка в корзину
+        if(e.target.classList.contains('hover-btn')) {
+            let positionOrder = {
+                category: e.target.closest('.menu-position').querySelector('.position-description').querySelector('.position-title').textContent,
+                name: e.target.closest('.menu-position').querySelector('.position-description').querySelector('.position-name').textContent,
+                price: e.target.closest('.menu-position').querySelector('.position-description').querySelector('.position-price').textContent,
+                quantity: quantity
+            }
+            let hasTwin = false;
+            
+            cartData.forEach(item => {
+                console.log(item.name);
+                console.log(positionOrder.name)
+            })
+
+            if(!hasTwin) cartData.push(positionOrder);
+
+            renderCart();
+        }
+    })
+};
+
+function renderCart() {
+
+    const cartItem = document.createElement('div');
+    cartItem.className = 'cart-item';
+
+    const itemName = document.createElement('p');
+    itemName.className = 'cart-name';
+
+    const itemInfo = document.createElement('div');
+    itemInfo.className = 'cart-item-info';
+
+    const infoQuantity = document.createElement('p');
+    infoQuantity.className = 'quantity';
+
+    const infoPrice = document.createElement('p');
+    infoPrice.className = 'price';
+
+    const infoPriceTotal = document.createElement('p');
+    infoPriceTotal.className = 'price-all';
+
+    const itemRemove = document.createElement('span');
+    itemRemove.className = 'cart-remove';
+
+    const itemRemoveImage = document.createElement('img');
+    itemRemoveImage.src = './assets/images/icon-remove-item.svg'
+
+    itemRemove.append(itemRemoveImage);
+    itemInfo.append(infoQuantity);
+    itemInfo.append(infoPrice);
+    itemInfo.append(infoPriceTotal);
+    cartItem.append(itemName);
+    cartItem.append(itemInfo);
+    cartItem.append(itemRemove);
+
+    cart.append(cartItem);
 }
+
+
+//             <div class="cart-item" data-id=${index}>
+//                 <p>${name}</p>
+
+//                 <div class="cart-item-info">
+//                     <p class="quantity">${quantity}x</p>
+//                     <p class="price">${price}</p>
+//                     <p class="price-all">$${Number(price.slice(1)) * Number(quantity)}</p>
+//                 </div>
+            
+//                 <span class="cart-remove">
+//                     <img src="assets/images/icon-remove-item.svg" alt="">
+//                 </span>
+//             </div>
