@@ -423,52 +423,67 @@ function addToCart() {
             let hasTwin = false;
             
             cartData.forEach(item => {
-                console.log(item.name);
-                console.log(positionOrder.name)
+                if(item.name === positionOrder.name) {
+                    item.quantity = Number(item.quantity) + Number(positionOrder.quantity);
+                    hasTwin = true;
+                }
             })
 
             if(!hasTwin) cartData.push(positionOrder);
 
-            renderCart();
+            renderCart(cartData);
         }
     })
 };
 
-function renderCart() {
 
-    const cartItem = document.createElement('div');
-    cartItem.className = 'cart-item';
 
-    const itemName = document.createElement('p');
-    itemName.className = 'cart-name';
+function renderCart(data) {
+    cart.innerHTML = ''
 
-    const itemInfo = document.createElement('div');
-    itemInfo.className = 'cart-item-info';
+    data.forEach(item => {
+        const {category, name, price, quantity} = item;
 
-    const infoQuantity = document.createElement('p');
-    infoQuantity.className = 'quantity';
+        const cartItem = document.createElement('div');
+        cartItem.className = 'cart-item';
 
-    const infoPrice = document.createElement('p');
-    infoPrice.className = 'price';
+        const itemName = document.createElement('p');
+        itemName.className = 'cart-name';
+        itemName.textContent = name;
 
-    const infoPriceTotal = document.createElement('p');
-    infoPriceTotal.className = 'price-all';
+        const itemInfo = document.createElement('div');
+        itemInfo.className = 'cart-item-info';
 
-    const itemRemove = document.createElement('span');
-    itemRemove.className = 'cart-remove';
+        const infoQuantity = document.createElement('p');
+        infoQuantity.className = 'quantity';
+        infoQuantity.textContent = quantity
 
-    const itemRemoveImage = document.createElement('img');
-    itemRemoveImage.src = './assets/images/icon-remove-item.svg'
+        const infoPrice = document.createElement('p');
+        infoPrice.className = 'price';
+        infoPrice.textContent = price
 
-    itemRemove.append(itemRemoveImage);
-    itemInfo.append(infoQuantity);
-    itemInfo.append(infoPrice);
-    itemInfo.append(infoPriceTotal);
-    cartItem.append(itemName);
-    cartItem.append(itemInfo);
-    cartItem.append(itemRemove);
+        const infoPriceTotal = document.createElement('p');
+        infoPriceTotal.className = 'price-all';
+        infoPriceTotal.textContent = `$${Number(price.slice(1) * Number(quantity))}`
 
-    cart.append(cartItem);
+        const itemRemove = document.createElement('span');
+        itemRemove.className = 'cart-remove';
+
+        const itemRemoveImage = document.createElement('img');
+        itemRemoveImage.src = './assets/images/icon-remove-item.svg'
+
+        itemRemove.append(itemRemoveImage);
+        itemInfo.append(infoQuantity);
+        itemInfo.append(infoPrice);
+        itemInfo.append(infoPriceTotal);
+        cartItem.append(itemName);
+        cartItem.append(itemInfo);
+        cartItem.append(itemRemove);
+
+        cart.append(cartItem);
+    })
+
+
 }
 
 
