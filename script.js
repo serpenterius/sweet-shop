@@ -237,6 +237,10 @@
 
 let menuItems = document.querySelector('.menu-items'),
     cart = document.querySelector('.cart-items'),
+    cartPositionsQuantity = document.querySelector('.cart-positions'),
+    confirmOrder = document.querySelector('.confirm'),
+    layoutWindow = document.querySelector('.layout-window'),
+    contextMenuPosition = document.querySelector('.order-confirmed-positions');
     cartData = [];
 
 
@@ -347,34 +351,6 @@ function createPosition(category, image, name, price) {
 };
 
 
-// function choosePosition(positions) {
-//     positions.forEach(item => {
-//         item.querySelector('.position-label').addEventListener('click', e => {
-//             let addToCartBtn = e.currentTarget.querySelector('.add-to-cart'),
-//                 defaultBtn = addToCartBtn.querySelector('.default-btn'),
-//                 hoverBtn = addToCartBtn.querySelector('.hover-btn');
-
-//             //Удаляю рамку со всех позиций
-//             positions.forEach(item => {
-//                 item.querySelector('.label-img').classList.remove('label-active');
-
-//                 item.querySelector('.default-btn').classList.remove('hidden');
-                
-//                 item.querySelector('.hover-btn').classList.add('hidden');
-//                 item.querySelector('.hover-btn').classList.remove('active');
-//             })
-//             //Навешиваю рамку на позицию, которую выбрал пользователь
-//             e.currentTarget.querySelector('.label-img').classList.add('label-active');
-
-//             //Изменяю контент в кнопке активной позиции
-//             defaultBtn.classList.add('hidden')
-//             hoverBtn.classList.remove('hidden');
-//             hoverBtn.classList.add('active');
-//         })
-//     })
-
-//     addToCart();
-// };
 
 function addToCart() {
     let addToCartBtn = document.querySelectorAll('.add-to-cart');
@@ -430,6 +406,7 @@ function addToCart() {
             })
 
             if(!hasTwin) cartData.push(positionOrder);
+            cartPositionsQuantity.textContent = `Your cart (${cartData.length})`
 
             renderCart(cartData);
         }
@@ -439,6 +416,7 @@ function addToCart() {
 
 
 function renderCart(data) {
+    //Очищает корзину, перезаписывая при каждом рендере в неё содержимое массива
     cart.innerHTML = ''
 
     data.forEach(item => {
@@ -483,20 +461,49 @@ function renderCart(data) {
         cart.append(cartItem);
     })
 
+    cart.addEventListener('click', e => {
+        if (e.target.tagName === 'IMG' || e.target.classList.contains('cart-remove')) {
+            let filteredCart = cartData.filter(item => item.name != e.target.closest('.cart-item').querySelector('.cart-name').textContent);
+            renderCart(filteredCart);
+        }
+    })
+}
 
+confirmOrder.addEventListener('click', e => {
+    console.log(layoutWindow);
+    layoutWindow.classList.remove('hidden-layout');
+    renderContextMenu(cartData);
+    console.log(e.target)
+})
+
+layoutWindow.addEventListener('click', e => {
+    if(e.target.className === 'layout-window') {
+        layoutWindow.classList.add('hidden-layout');
+    }
+})
+
+
+function renderContextMenu(data) {
+    data.forEach(item => {
+        contextMenuPosition.insertAdjacentHTML('beforeend', `
+        <div class="order-confirmed-position">
+            <img src=${img} alt="">
+
+            <div class="order-position-info">
+                <p class="order-position-title"></p>
+                <p class="order-position-quantity"></p>
+                <p class="order-positon-price"></p>
+            </div>
+
+            <p class="order-position-total">$</p>
+        </div
+        `)
+    })
 }
 
 
-//             <div class="cart-item" data-id=${index}>
-//                 <p>${name}</p>
 
-//                 <div class="cart-item-info">
-//                     <p class="quantity">${quantity}x</p>
-//                     <p class="price">${price}</p>
-//                     <p class="price-all">$${Number(price.slice(1)) * Number(quantity)}</p>
-//                 </div>
-            
-//                 <span class="cart-remove">
-//                     <img src="assets/images/icon-remove-item.svg" alt="">
-//                 </span>
-//             </div>
+
+
+
+
