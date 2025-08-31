@@ -391,6 +391,7 @@ function addToCart() {
         //Отправка в корзину
         if(e.target.classList.contains('hover-btn')) {
             let positionOrder = {
+                img: e.target.closest('.menu-position').querySelector('.label-img').src,
                 category: e.target.closest('.menu-position').querySelector('.position-description').querySelector('.position-title').textContent,
                 name: e.target.closest('.menu-position').querySelector('.position-description').querySelector('.position-name').textContent,
                 price: e.target.closest('.menu-position').querySelector('.position-description').querySelector('.position-price').textContent,
@@ -409,6 +410,7 @@ function addToCart() {
             cartPositionsQuantity.textContent = `Your cart (${cartData.length})`
 
             renderCart(cartData);
+            changeTotalPrice(cartData);
         }
     })
 };
@@ -463,17 +465,17 @@ function renderCart(data) {
 
     cart.addEventListener('click', e => {
         if (e.target.tagName === 'IMG' || e.target.classList.contains('cart-remove')) {
-            let filteredCart = cartData.filter(item => item.name != e.target.closest('.cart-item').querySelector('.cart-name').textContent);
-            renderCart(filteredCart);
+            cartData = cartData.filter(item => item.name != e.target.closest('.cart-item').querySelector('.cart-name').textContent);
+            renderCart(cartData);
+            changeTotalPrice(cartData);
         }
     })
+
 }
 
 confirmOrder.addEventListener('click', e => {
-    console.log(layoutWindow);
     layoutWindow.classList.remove('hidden-layout');
     renderContextMenu(cartData);
-    console.log(e.target)
 })
 
 layoutWindow.addEventListener('click', e => {
@@ -484,26 +486,37 @@ layoutWindow.addEventListener('click', e => {
 
 
 function renderContextMenu(data) {
+    contextMenuPosition.innerHTML = '';
+
     data.forEach(item => {
+        let {name, price, quantity, img} = item;
         contextMenuPosition.insertAdjacentHTML('beforeend', `
         <div class="order-confirmed-position">
             <img src=${img} alt="">
 
             <div class="order-position-info">
-                <p class="order-position-title"></p>
-                <p class="order-position-quantity"></p>
-                <p class="order-positon-price"></p>
+                <p class="order-position-title">${name}</p>
+                <p class="order-position-quantity">${quantity}</p>
+                <p class="order-positon-price">${price}</p> 
             </div>
 
-            <p class="order-position-total">$</p>
+            <p class="order-position-total">$${Number(price.slice(1)) * Number(quantity)}</p>
         </div
         `)
     })
 }
 
+function changeTotalPrice(data) {
+    let totalPrice = document.querySelector('.order-price');
 
+    let totalPriceSummary = 0;
+    
+    data.forEach(item => {
+        totalPriceSummary += Number(item.quantity) * Number(item.price.slice(1));
+    })
 
-
+    totalPrice.textContent = `$${totalPriceSummary}`;
+}
 
 
 
